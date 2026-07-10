@@ -4,15 +4,15 @@ import { useAuthStore } from '../store/auth.store';
 import clsx from 'clsx';
 
 const navItems = [
-  { to: '/',             label: 'Pregled',          icon: '◈' },
-  { to: '/users',        label: 'Uporabniki',       icon: '👤' },
-  { to: '/trips',        label: 'Vožnje',           icon: '🚗' },
-  { to: '/report',       label: 'Poročilo',         icon: '📊' },
-  { to: '/risk-map',     label: 'Tvegana karta',    icon: '🗺' },
-  { to: '/traffic',      label: 'Promet',           icon: '🚦' },
-  { to: '/roads',        label: 'Cestni podatki',   icon: '🛣' },
-  { to: '/data-sources', label: 'Podatkovni viri',  icon: '📡' },
-  { to: '/simulation',   label: 'Simulacija',       icon: '🎮' },
+  { to: '/',             label: 'Pregled',          code: 'PR' },
+  { to: '/users',        label: 'Uporabniki',       code: 'UP' },
+  { to: '/trips',        label: 'Vožnje',           code: 'VO' },
+  { to: '/report',       label: 'Poročilo',         code: 'PO' },
+  { to: '/risk-map',     label: 'Tvegana karta',    code: 'TK' },
+  { to: '/traffic',      label: 'Promet',           code: 'PM' },
+  { to: '/roads',        label: 'Cestni podatki',   code: 'CP' },
+  { to: '/data-sources', label: 'Podatkovni viri',  code: 'PV' },
+  { to: '/simulation',   label: 'Simulacija',       code: 'SI' },
 ];
 
 export default function Layout() {
@@ -28,12 +28,19 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col overflow-hidden md:h-screen md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full shrink-0 bg-surface-800 border-b border-surface-600 md:w-56 md:border-b-0 md:border-r flex flex-col">
-        <div className="px-5 py-4 border-b border-surface-600">
-          <span className="text-brand-400 font-bold text-lg tracking-tight">DriveWise</span>
-          <div className="text-surface-400 text-xs mt-0.5">Admin Dashboard</div>
+      <aside className="flex w-full shrink-0 flex-col border-b border-surface-600 bg-surface-800/95 md:w-64 md:border-b-0 md:border-r">
+        <div className="border-b border-surface-600 px-5 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-brand-500/40 bg-brand-500/15 text-sm font-bold text-brand-400">
+              DW
+            </div>
+            <div>
+              <span className="block text-lg font-bold tracking-tight text-white">DriveWise</span>
+              <div className="mt-0.5 text-xs text-surface-400">Telematics Admin</div>
+            </div>
+          </div>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-3 py-3 md:flex-1 md:flex-col md:gap-0 md:overflow-y-auto md:px-0">
+        <nav className="flex gap-1 overflow-x-auto px-3 py-3 md:flex-1 md:flex-col md:gap-1 md:overflow-y-auto md:px-3">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -41,21 +48,34 @@ export default function Layout() {
               end={item.to === '/'}
               className={({ isActive }) =>
                 clsx(
-                  'flex shrink-0 items-center gap-2.5 rounded-lg px-4 py-2.5 text-sm transition-colors md:rounded-none md:px-5',
+                  'flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors',
                   isActive
-                    ? 'bg-surface-700 text-brand-400 font-medium'
-                    : 'text-surface-300 hover:text-white hover:bg-surface-700',
+                    ? 'bg-brand-500/12 text-white ring-1 ring-brand-500/25'
+                    : 'text-surface-300 hover:bg-surface-700/70 hover:text-white',
                 )
               }
             >
-              <span className="text-base leading-none w-5 text-center">{item.icon}</span>
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className={clsx(
+                      'flex h-7 w-7 items-center justify-center rounded-lg text-[10px] font-bold',
+                      isActive ? 'bg-brand-500 text-white' : 'bg-surface-700 text-surface-300',
+                    )}
+                  >
+                    {item.code}
+                  </span>
+                  <span className="whitespace-nowrap">{item.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
-        <div className="hidden px-5 py-4 border-t border-surface-600 text-xs text-surface-400 md:block">
-          <div className="mb-2 truncate">{user?.email}</div>
-          <button type="button" onClick={handleLogout} className="text-surface-400 hover:text-white transition-colors">
+        <div className="hidden border-t border-surface-600 px-5 py-4 text-xs text-surface-400 md:block">
+          <div className="mb-1 font-medium text-surface-300">{user?.name ?? 'Local demo'}</div>
+          <div className="mb-3 truncate">{user?.email}</div>
+          <button type="button" onClick={handleLogout} className="rounded-lg border border-surface-600 px-3 py-1.5 text-surface-300 transition-colors hover:border-surface-500 hover:text-white">
             Odjava
           </button>
         </div>

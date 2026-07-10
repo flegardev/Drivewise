@@ -5,6 +5,8 @@
 @layer base {
   body {
     @apply bg-surface-900 text-white font-sans antialiased;
+    background:
+      linear-gradient(180deg, #101720 0%, #0f1117 42%, #0b0e13 100%);
   }
   ::-webkit-scrollbar {
     @apply w-1.5;
@@ -19,21 +21,33 @@
 
 @layer components {
   .card {
-    @apply bg-surface-800 border border-surface-600 rounded-xl p-5;
+    @apply rounded-xl border border-surface-600 bg-surface-800/95 p-5 shadow-sm shadow-black/20;
   }
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
   .btn {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-900;
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-900 disabled:cursor-not-allowed disabled:opacity-55;
   }
   .btn-primary {
-    @apply btn bg-brand-500 hover:bg-brand-400 text-white focus:ring-brand-500;
+    @apply btn bg-brand-500 text-white shadow-sm shadow-brand-900/40 hover:bg-brand-400 focus:ring-brand-500;
   }
   .btn-secondary {
-    @apply btn bg-surface-600 hover:bg-surface-500 text-white focus:ring-surface-500;
+    @apply btn bg-surface-600 text-white hover:bg-surface-500 focus:ring-surface-500;
   }
   .stat-card {
     @apply card flex flex-col gap-1;
+  }
+  .table-card {
+    @apply card overflow-x-auto p-0;
+  }
+  .table-card table {
+    @apply w-full text-sm;
+  }
+  .table-card th {
+    @apply bg-surface-800 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-surface-400;
+  }
+  .table-card td {
+    @apply px-4 py-3;
   }
 }

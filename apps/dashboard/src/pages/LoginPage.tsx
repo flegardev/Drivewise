@@ -23,36 +23,43 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-900 px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="text-brand-400 font-bold text-3xl tracking-tight mb-1">DriveWise</div>
-          <div className="text-surface-400 text-sm">Admin Dashboard</div>
+    <div className="flex min-h-screen items-center justify-center bg-surface-900 px-4">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-500/40 bg-brand-500/15 text-sm font-bold text-brand-400">
+            DW
+          </div>
+          <div className="mb-1 text-3xl font-bold tracking-tight text-white">DriveWise</div>
+          <div className="text-sm text-surface-400">Admin nadzorna plošča</div>
         </div>
-        <form onSubmit={handleSubmit} className="card space-y-4">
+        <form onSubmit={handleSubmit} className="card space-y-5">
           <div>
-            <label className="block text-sm text-surface-300 mb-1">E-pošta</label>
+            <label htmlFor="email" className="mb-1.5 block text-sm text-surface-300">E-pošta</label>
             <input
+              id="email"
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-surface-700 border border-surface-500 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500"
+              className="w-full rounded-lg border border-surface-500 bg-surface-700 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              placeholder="admin@drivewise.si"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-surface-300 mb-1">Geslo</label>
+            <label htmlFor="password" className="mb-1.5 block text-sm text-surface-300">Geslo</label>
             <input
+              id="password"
               type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-surface-700 border border-surface-500 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500"
+              className="w-full rounded-lg border border-surface-500 bg-surface-700 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              placeholder="admin1234"
               required
             />
           </div>
-          {error && <div className="text-red-400 text-sm">{error}</div>}
+          {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>}
           <button type="submit" className="btn-primary w-full justify-center py-2.5">
             Prijava
           </button>
         </form>
-        <div className="mt-4 p-3 bg-surface-800 border border-surface-600 rounded-lg text-xs text-surface-400 text-center">
-          Demo: <span className="text-surface-300">admin@drivewise.si</span> / <span className="text-surface-300">admin1234</span>
+        <div className="mt-4 rounded-xl border border-surface-600 bg-surface-800/80 p-3 text-center text-xs text-surface-400">
+          Demo prijava: <span className="text-surface-300">admin@drivewise.si</span> / <span className="text-surface-300">admin1234</span>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@
     "prisma:generate": "prisma generate --schema=apps/api/prisma/schema.prisma",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run build:packages && npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run prisma:generate && npm run build:packages && npm run typecheck --workspaces --if-present",
     "db:migrate": "npm run db:migrate --workspace=apps/api",
     "db:seed": "npm run db:seed --workspace=apps/api",
     "import:osm": "npm run import:osm --workspace=apps/api",
