@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ZodValidationPipe } from './common/zod-validation.pipe';
 import { ZodExceptionFilter } from './common/zod-exception.filter';
+import { resolveCorsOrigins } from './config/runtime-config';
 
 async function bootstrap() {
   // Fail fast in production on a missing/placeholder JWT secret.
@@ -17,14 +18,8 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // CORS: restrict to an explicit allowlist via CORS_ORIGIN (comma-separated)
-  // in production. Falls back to "*" with a warning if unset.
-  const corsOrigin = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-    : '*';
-  if (corsOrigin === '*' && process.env.NODE_ENV === 'production') {
-    console.warn('⚠️  CORS_ORIGIN is unset in production — allowing all origins. Set it to lock down the API.');
-  }
+  // Production refuses to start without an explicit browser-origin allowlist.
+  const corsOrigin = resolveCorsOrigins(process.env.CORS_ORIGIN, process.env.NODE_ENV);
   app.enableCors({ origin: corsOrigin });
 
   // Lightweight liveness probe for Docker/compose and platform health checks.

@@ -55,7 +55,7 @@ Non-root user, `HEALTHCHECK` on `/health`. For SQLite mount a volume for the db 
 | Mobile (Expo) | EAS Build → App Store / Play Store | n/a |
 
 ## Environment variables (server-only) — see `.env.example`
-`DATABASE_URL`, `JWT_SECRET` (**required, ≥32 chars; prod refuses the `change_me` default**), `PORT`, `NODE_ENV`, `CORS_ORIGIN` (comma list), `ENABLE_SCHEDULERS`, plus optional ingestion keys (`OVERPASS_API_URL`, `OPENROUTESERVICE_API_KEY`, `OPENWEATHER_API_KEY`, `TRAFFIC_PROVIDER`, `DATEX_API_URL`, `PROMET_API_URL`).
+`DATABASE_URL`, `JWT_SECRET` (**required, ≥32 chars; prod refuses the `change_me` default**), `PORT`, `NODE_ENV`, `CORS_ORIGIN` (**required in production; wildcard is rejected**), `ENABLE_SCHEDULERS`, plus optional ingestion keys (`OVERPASS_API_URL`, `OPENROUTESERVICE_API_KEY`, `OPENWEATHER_API_KEY`, `TRAFFIC_PROVIDER`, `DATEX_API_URL`, `PROMET_API_URL`). Dashboard-only `VITE_ENABLE_DEMO_FALLBACK` and `VITE_USE_LOCAL_DEMO` must remain `false` unless the deployment is intentionally an offline fictional demo.
 
 ## Backup / restore (PostgreSQL)
 ```bash
@@ -66,5 +66,7 @@ The `postgres_data` named volume persists data across restarts.
 
 ## Security notes
 - Seed creates demo accounts (`admin@drivewise.si` / `voznik@drivewise.si`, simple passwords) — **change or remove before any public deployment**.
-- `JWT_SECRET` must be strong and secret. CORS should be locked to known origins in prod (`CORS_ORIGIN`).
+- `JWT_SECRET` must be strong and secret. The API refuses to boot in production unless `CORS_ORIGIN` contains explicit HTTP(S) origins and no wildcard.
+- OSM/traffic import operations and import/provider logs require an authenticated administrator.
+- The current Expo SDK 52 build graph retains high/critical build-tool advisories; do not publish a new mobile build until the documented SDK upgrade and device QA are complete.
 - Host port 5432 may conflict with a local Postgres; remap if `docker compose up` reports "address already in use".

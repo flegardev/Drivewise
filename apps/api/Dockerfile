@@ -36,13 +36,25 @@ RUN npx prisma generate --schema=apps/api/prisma/schema.prisma \
  && npm run build --workspace=packages/simulation \
  && npm run build --workspace=apps/api
 
+# Remove build/test tooling before copying dependencies into the runtime stage.
+RUN npm prune --omit=dev \
+      --workspace=apps/api \
+      --workspace=packages/shared \
+      --workspace=packages/scoring \
+      --workspace=packages/sensors \
+      --workspace=packages/simulation \
+      --include-workspace-root
+
 # ---- runtime ----
 FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /repo
-# OpenSSL is required by the Prisma query engine.
-RUN apt-get update && apt-get install -y --no-install-recommends openssl curl \
- && rm -rf /var/lib/apt/lists/*
+# OpenSSL is required by the Prisma query engine. Package installers are not a
+# runtime responsibility and are removed from the final image.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /usr/local/lib/node_modules/npm \
+ && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 COPY --from=build /repo/node_modules ./node_modules
 COPY --from=build /repo/apps/api/dist ./apps/api/dist
@@ -57,6 +69,6 @@ WORKDIR /repo/apps/api
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:${PORT:-3000}/health || exit 1
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 CMD ["node", "dist/main"]

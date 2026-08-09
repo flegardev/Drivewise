@@ -150,6 +150,7 @@ npm run dev:mobile
 |------------------------|---------------------------------------------------|----------------------------|
 | `DATABASE_URL`         | PostgreSQL connection string                      | Required                   |
 | `JWT_SECRET`           | JWT signing secret (min 32 chars)                 | Required                   |
+| `CORS_ORIGIN`          | Comma-separated dashboard origins; required in production | `http://localhost:5173` |
 | `PORT`                 | API port                                          | `3000`                     |
 | `OVERPASS_API_URL`     | OSM Overpass endpoint                             | Public endpoint            |
 | `OPENROUTESERVICE_API_KEY` | Optional route snapping                      | (disabled if blank)        |
@@ -160,6 +161,11 @@ npm run dev:mobile
 | `DEMO_MODE`            | Enable demo data features                         | `true`                     |
 | `EXPO_PUBLIC_API_BASE_URL` | Mobile → API URL                            | `http://localhost:3000/api`|
 | `VITE_API_BASE_URL`    | Dashboard → API URL                               | `http://localhost:3000/api`|
+| `VITE_ENABLE_DEMO_FALLBACK` | Opt in to offline fictional data after API failure | `false`              |
+| `VITE_USE_LOCAL_DEMO`  | Force the dashboard's local demo adapter          | `false`                    |
+
+Production deliberately refuses wildcard or missing CORS configuration. Demo
+fallback is also deliberately opt-in so a real outage cannot look like live data.
 
 ---
 
@@ -418,4 +424,5 @@ This project is NOT affiliated with Triglav, DRAJV, or any insurance company. It
 
 ---
 
-Made by FlegarTech. If this project helped you, you can [support development](https://paypal.me/TiniFlegar).
+Built and maintained by [Tini Flegar](https://github.com/flegardev) · Full-Stack Developer · IT & Finance ·
+[flegardev@gmail.com](mailto:flegardev@gmail.com)

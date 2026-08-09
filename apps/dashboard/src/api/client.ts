@@ -8,7 +8,7 @@ export const api = axios.create({
   timeout: 2500,
 });
 
-const demoFallbackEnabled = import.meta.env.VITE_ENABLE_DEMO_FALLBACK !== 'false';
+const demoFallbackEnabled = import.meta.env.VITE_ENABLE_DEMO_FALLBACK === 'true';
 const forceLocalDemo = import.meta.env.VITE_USE_LOCAL_DEMO === 'true' || import.meta.env.VITE_API_BASE_URL === 'demo';
 
 function shouldUseDemoFallback(err: unknown) {

@@ -11,6 +11,20 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: drivewise_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d drivewise_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -32,6 +46,18 @@ jobs:
         run: npm run build
       - name: Test (workspaces)
         run: npm test
+      - name: Test API authorization against PostgreSQL
+        run: |
+          npx prisma db push --schema=apps/api/prisma/schema.prisma --skip-generate
+          npm run test:e2e:ci --workspace=apps/api
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/drivewise_test
+          JWT_SECRET: test_secret_used_only_for_ci_0123456789
+          NODE_ENV: test
+      - name: Audit deployable API and dashboard scopes
+        run: |
+          npm audit --workspace=apps/api --omit=dev --audit-level=high
+          npm audit --workspace=apps/dashboard --omit=dev --audit-level=high
 
   docker-api:
     runs-on: ubuntu-latest
@@ -41,3 +67,15 @@ jobs:
           persist-credentials: false
       - name: Build API image
         run: docker build -f apps/api/Dockerfile -t drivewise-api:ci .
+      - name: Verify non-root runtime and imports
+        run: |
+          docker run --rm --entrypoint node drivewise-api:ci \
+            -e "if(process.getuid()!==10001)process.exit(1);require('@prisma/client');console.log('runtime-ok')"
+      - name: Scan API image for fixed high or critical vulnerabilities
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$HOME/.cache/trivy:/root/.cache/" \
+            aquasec/trivy:0.73.0@sha256:7cced7cae583819fc7806d4cbc0dbbc7cad18b99f7d3e235192e6da8c091045c \
+            image --no-progress --scanners vuln --ignore-unfixed \
+            --severity HIGH,CRITICAL --exit-code 1 drivewise-api:ci

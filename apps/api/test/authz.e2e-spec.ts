@@ -224,6 +224,14 @@ describe('Auth & trip authorization (e2e)', () => {
       await http().get('/api/admin/stats').set(auth(driverAToken)).expect(403);
       await http().get('/api/admin/trips').set(auth(driverAToken)).expect(403);
       await http().get('/api/admin/users').set(auth(driverAToken)).expect(403);
+      await http().get('/api/ingestion/logs').set(auth(driverAToken)).expect(403);
+      await http().post('/api/ingestion/osm/import').set(auth(driverAToken)).expect(403);
+      await http().post('/api/ingestion/traffic/import').set(auth(driverAToken)).expect(403);
+    });
+
+    it('an ADMIN can read ingestion status without starting an import', async () => {
+      await http().get('/api/ingestion/logs').set(auth(adminToken)).expect(200);
+      await http().get('/api/ingestion/provider-status').set(auth(adminToken)).expect(200);
     });
   });
 
@@ -245,6 +253,13 @@ describe('Auth & trip authorization (e2e)', () => {
         .set(auth(driverAToken))
         .send({ points: [{ latitude: 999, longitude: 14, timestamp: 'not-a-date' }] })
         .expect(400);
+    });
+
+    it('rejects non-finite or out-of-range ingestion coordinates and limits', async () => {
+      await http().get('/api/weather/current?lat=NaN&lng=14').set(auth(driverAToken)).expect(400);
+      await http().get('/api/weather/current?lat=91&lng=14').set(auth(driverAToken)).expect(400);
+      await http().get('/api/road-segments/nearby?lat=46&lng=181').set(auth(driverAToken)).expect(400);
+      await http().get('/api/road-segments?limit=not-a-number').set(auth(driverAToken)).expect(400);
     });
   });
 });

@@ -2,10 +2,8 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { SetMetadata } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+import { Roles } from '../common/roles.decorator';
 
 type FraudFlag = { reason: string; detail: string };
 

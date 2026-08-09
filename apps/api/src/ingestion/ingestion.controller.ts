@@ -5,10 +5,17 @@ import { TrafficImportService } from './traffic-import.service';
 import { WeatherService } from './weather.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../common/roles.decorator';
+import { z } from 'zod';
+
+const LimitSchema = z.coerce.number().int().min(1).max(500).default(100);
+const LatitudeSchema = z.coerce.number().finite().min(-90).max(90);
+const LongitudeSchema = z.coerce.number().finite().min(-180).max(180);
 
 @ApiTags('ingestion')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller()
 export class IngestionController {
   constructor(
@@ -19,16 +26,19 @@ export class IngestionController {
   ) {}
 
   @Post('ingestion/osm/import')
+  @Roles('ADMIN')
   importOsm() {
     return this.osm.importAllAreas();
   }
 
   @Post('ingestion/traffic/import')
+  @Roles('ADMIN')
   importTraffic() {
     return this.traffic.importTrafficEvents();
   }
 
   @Get('ingestion/logs')
+  @Roles('ADMIN')
   getLogs() {
     return this.prisma.dataImportLog.findMany({
       orderBy: { startedAt: 'desc' },
@@ -37,6 +47,7 @@ export class IngestionController {
   }
 
   @Get('ingestion/provider-status')
+  @Roles('ADMIN')
   getProviderStatus() {
     return this.prisma.apiProviderStatus.findMany();
   }
@@ -44,13 +55,15 @@ export class IngestionController {
   @Get('road-segments')
   getRoadSegments(@Query('limit') limit = '100') {
     return this.prisma.roadSegment.findMany({
-      take: Math.min(parseInt(limit, 10), 500),
+      take: LimitSchema.parse(limit),
       orderBy: { importedAt: 'desc' },
     });
   }
 
   @Get('road-segments/nearby')
-  getNearby(@Query('lat') _lat: string, @Query('lng') _lng: string) {
+  getNearby(@Query('lat') lat: string, @Query('lng') lng: string) {
+    LatitudeSchema.parse(lat);
+    LongitudeSchema.parse(lng);
     return this.prisma.roadSegment.findMany({ take: 20 });
   }
 
@@ -61,6 +74,9 @@ export class IngestionController {
 
   @Get('weather/current')
   getWeather(@Query('lat') lat = '46.66', @Query('lng') lng = '16.17') {
-    return this.weather.getCurrentWeather(parseFloat(lat), parseFloat(lng));
+    return this.weather.getCurrentWeather(
+      LatitudeSchema.parse(lat),
+      LongitudeSchema.parse(lng),
+    );
   }
 }
