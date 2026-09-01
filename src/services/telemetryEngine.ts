@@ -115,7 +115,7 @@ export function detectDrivingEvents(
     const speedDelta = sample.speedKmh - (sample.speedLimitKmh + speedTolerance);
     if (speedDelta > 0) {
       const severity =
-        speedDelta > 30 ? "CRITICAL" : speedDelta > 20 ? "HIGH" : speedDelta > 10 ? "MEDIUM" : "LOW";
+        speedDelta >= 30 ? "CRITICAL" : speedDelta >= 20 ? "HIGH" : speedDelta >= 10 ? "MEDIUM" : "LOW";
       const penalty = severity === "CRITICAL" ? 20 : severity === "HIGH" ? 12 : severity === "MEDIUM" ? 7 : 3;
 
       events.push({
