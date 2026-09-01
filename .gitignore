@@ -3,6 +3,3 @@ dist/
 output/
 test-results/
 .env
-packages/
-apps/
-
