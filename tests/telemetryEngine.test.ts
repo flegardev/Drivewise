@@ -28,6 +28,24 @@ describe("DriveWise Telematics Calculation Engine", () => {
   };
 
   describe("Haversine Distance Math", () => {
+    it.each([
+      { latitude: NaN, longitude: 0 },
+      { latitude: 0, longitude: Infinity },
+      { latitude: 91, longitude: 0 },
+      { latitude: 0, longitude: 181 }
+    ])("rejects invalid coordinates %j", (coordinate) => {
+      expect(() => calculateHaversineDistanceKm(coordinate, baseCoords)).toThrow();
+      expect(() => calculateHaversineDistanceKm(baseCoords, coordinate)).toThrow();
+    });
+
+    it("keeps antipodal distance finite and symmetric", () => {
+      const start = { latitude: 46.0569, longitude: 14.5058 };
+      const end = { latitude: -46.0569, longitude: -165.4942 };
+      const distance = calculateHaversineDistanceKm(start, end);
+      expect(Number.isFinite(distance)).toBe(true);
+      expect(distance).toBeCloseTo(Math.PI * 6371, 3);
+      expect(calculateHaversineDistanceKm(end, start)).toBe(distance);
+    });
     it("should accurately compute zero distance between identical points", () => {
       const dist = calculateHaversineDistanceKm(baseCoords, baseCoords);
       expect(dist).toBe(0);

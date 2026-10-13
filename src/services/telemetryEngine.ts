@@ -23,6 +23,12 @@ export function calculateHaversineDistanceKm(
   coord1: GeoCoordinates,
   coord2: GeoCoordinates
 ): number {
+  for (const coordinate of [coord1, coord2]) {
+    if (!Number.isFinite(coordinate.latitude) || !Number.isFinite(coordinate.longitude) ||
+        Math.abs(coordinate.latitude) > 90 || Math.abs(coordinate.longitude) > 180) {
+      throw new Error("Coordinates must be finite and within latitude/longitude bounds.");
+    }
+  }
   const R = 6371.0; // Earth radius in kilometers
   const dLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
   const dLon = ((coord2.longitude - coord1.longitude) * Math.PI) / 180;
@@ -34,7 +40,9 @@ export function calculateHaversineDistanceKm(
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  // Floating-point roundoff at antipodes can push a just outside [0, 1].
+  const boundedA = Math.max(0, Math.min(1, a));
+  const c = 2 * Math.atan2(Math.sqrt(boundedA), Math.sqrt(1 - boundedA));
   return Number((R * c).toFixed(4));
 }
 
